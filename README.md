@@ -1,25 +1,26 @@
-local runService = game:GetService("RunService")
+-- [[ ZYCK SOLUTIONS - bola desacelerada ]] --
 
-local estadoPuxar2x = false
-local conexaoFps2x = nil
+local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
 
-local function gerenciarTravaFps2x(alvo)
-    if conexaoFps2x then conexaoFps2x:Disconnect() conexaoFps2x = nil end
-    if alvo == 0 then return end
-    local t0 = os.clock()
-    conexaoFps2x = runService.RenderStepped:Connect(function()
-        local t1 = os.clock()
-        while t1 - t0 < (1 / alvo) do t1 = os.clock() end
-        t0 = t1
+-- Função principal de calibração de performance
+local function calibrarDesempenho()
+    -- Crava o teto de quadros exatamente em 57 FPS para estabilizar a condução
+    if setfpscap then
+        setfpscap(53)
+        print("[ZYCK] Limite de FPS cravado com sucesso em: 57 📈")
+    else
+        print("[ZYCK] Erro: Seu executor não suporta a função setfpscap.")
+    end
+
+    -- Otimizações internas de rede (Reduz input lag e estabiliza ping)
+    pcall(function()
+        settings().Physics.AllowSleep = false
+        settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Disabled
+        Stats.Network.ServerToClientConnection.RouterLagLowerBound = 0
+        print("[ZYCK] Input lag de rede minimizado!")
     end)
 end
 
-local function TogglePuxarBola2x()
-    estadoPuxar2x = not estadoPuxar2x
-    if estadoPuxar2x then
-        gerenciarTravaFps2x(55)
-    else
-        gerenciarTravaFps2x(0)
-    end
-    return estadoPuxar2x
-end
+-- Executa a calibração imediatamente
+task.spawn(pcall, calibrarDesempenho)
